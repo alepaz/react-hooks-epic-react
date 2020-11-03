@@ -5,26 +5,20 @@ import React from 'react'
 
 function Board() {
   const [squares, setSquares] = React.useState(Array(9).fill(null))
-  const [status, setStatus] = React.useState('')
-  const [winner, setWinner] = React.useState(null)
+  const nextValue = calculateNextValue(squares)
+  const winner = calculateWinner(squares)
+  const status = calculateStatus(winner, squares, nextValue)
 
   function selectSquare(square) {
     if (squares[square] !== null) return
     if (winner !== null) return
 
     const squaresCopy = [...squares]
-    const nextValue = calculateNextValue(squares)
     squaresCopy[square] = nextValue
-    const winnerUpdate = calculateWinner(squaresCopy)
-    if (winnerUpdate !== null) setWinner(winnerUpdate)
-    const status = calculateStatus(winnerUpdate, squaresCopy, nextValue)
-    setStatus(status)
     setSquares(squaresCopy)
   }
 
   function restart() {
-    setWinner(null)
-    setStatus('')
     setSquares(Array(9).fill(null))
   }
 
