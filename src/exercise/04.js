@@ -4,7 +4,17 @@
 import React from 'react'
 
 function Board() {
-  const [squares, setSquares] = React.useState(Array(9).fill(null))
+  const [squares, setSquares] = React.useState(
+    window.localStorage
+      .getItem('squares')
+      .split(',')
+      .filter(x => x !== '"') || Array(9).fill(null),
+  )
+
+  React.useEffect(() => {
+    window.localStorage.setItem('squares', squares)
+  }, [squares])
+
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
   const status = calculateStatus(winner, squares, nextValue)
