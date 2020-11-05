@@ -5,14 +5,12 @@ import React from 'react'
 
 function Board() {
   const [squares, setSquares] = React.useState(
-    window.localStorage
-      .getItem('squares')
-      .split(',')
-      .filter(x => x !== '"') || Array(9).fill(null),
+    () =>
+      JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null),
   )
 
   React.useEffect(() => {
-    window.localStorage.setItem('squares', squares)
+    window.localStorage.setItem('squares', JSON.stringify(squares))
   }, [squares])
 
   const nextValue = calculateNextValue(squares)
