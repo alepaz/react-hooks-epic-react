@@ -46,12 +46,14 @@ function Game() {
 
   React.useEffect(() => {
     window.localStorage.setItem('squares', JSON.stringify(squares))
-    if (
-      !logs.some(x => x?.toString() === squares?.toString())
-      // squares.some(x => x !== null) &&
-      // logs[logs.length - 1]?.toString() !== squares?.toString()
-    ) {
-      const logsCopy = [...logs, squares]
+    if (!logs.some(x => x?.toString() === squares?.toString())) {
+      const lengthSquares = squares.filter(x => x !== null).length
+      const logsCopy = [
+        ...logs.filter(
+          log => log.filter(x => x !== null).length < lengthSquares,
+        ),
+        squares,
+      ]
       setLogs(logsCopy)
     }
   }, [squares])
