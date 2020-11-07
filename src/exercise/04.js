@@ -47,8 +47,9 @@ function Game() {
   React.useEffect(() => {
     window.localStorage.setItem('squares', JSON.stringify(squares))
     if (
+      !logs.some(x => x?.toString() === squares?.toString())
       // squares.some(x => x !== null) &&
-      logs[logs.length - 1]?.toString() !== squares?.toString()
+      // logs[logs.length - 1]?.toString() !== squares?.toString()
     ) {
       const logsCopy = [...logs, squares]
       setLogs(logsCopy)
@@ -77,6 +78,10 @@ function Game() {
     setLogs([])
   }
 
+  function goHistory(history) {
+    setSquares(history)
+  }
+
   return (
     <div className="game">
       <div className="game-board">
@@ -93,8 +98,15 @@ function Game() {
           {console.log({logs})}
           {logs.map((log, key) => (
             <div key={log.toString()}>
-              {key + 1} {key === 0 ? 'Go to game start' : `Go to move #${key}`}{' '}
-              {log}
+              {key + 1}
+              {'. '}
+              <button
+                onClick={() => goHistory(log)}
+                disabled={squares?.toString() === log?.toString()}
+              >
+                {key === 0 ? 'Go to game start' : `Go to move #${key}`}
+                {squares?.toString() === log?.toString() ? ' (current)' : null}
+              </button>
             </div>
           ))}
         </div>
