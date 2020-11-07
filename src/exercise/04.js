@@ -2,32 +2,9 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import React from 'react'
-import {useLocalStorageState }from '../utils'
+import {useLocalStorageState} from '../utils'
 
-function Board() {
-  const [squares, setSquares] = useLocalStorageState('squares', Array(9).fill(null))
-
-  React.useEffect(() => {
-    window.localStorage.setItem('squares', JSON.stringify(squares))
-  }, [squares])
-
-  const nextValue = calculateNextValue(squares)
-  const winner = calculateWinner(squares)
-  const status = calculateStatus(winner, squares, nextValue)
-
-  function selectSquare(square) {
-    if (squares[square] !== null) return
-    if (winner !== null) return
-
-    const squaresCopy = [...squares]
-    squaresCopy[square] = nextValue
-    setSquares(squaresCopy)
-  }
-
-  function restart() {
-    setSquares(Array(9).fill(null))
-  }
-
+function Board({squares, selectSquare, restart}) {
   function renderSquare(i) {
     return (
       <button className="square" onClick={() => selectSquare(i)}>
@@ -38,7 +15,6 @@ function Board() {
 
   return (
     <div>
-      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
@@ -62,10 +38,66 @@ function Board() {
 }
 
 function Game() {
+  const [squares, setSquares] = useLocalStorageState(
+    'squares',
+    Array(9).fill(null),
+  )
+  const [logs, setLogs] = useLocalStorageState('logs', [])
+
+  React.useEffect(() => {
+    window.localStorage.setItem('squares', JSON.stringify(squares))
+    if (
+      // squares.some(x => x !== null) &&
+      logs[logs.length - 1]?.toString() !== squares?.toString()
+    ) {
+      const logsCopy = [...logs, squares]
+      setLogs(logsCopy)
+    }
+  }, [squares])
+
+  React.useEffect(() => {
+    window.localStorage.setItem('logs', JSON.stringify(logs))
+  }, [logs])
+
+  const nextValue = calculateNextValue(squares)
+  const winner = calculateWinner(squares)
+  const status = calculateStatus(winner, squares, nextValue)
+
+  function selectSquare(square) {
+    if (squares[square] !== null) return
+    if (winner !== null) return
+
+    const squaresCopy = [...squares]
+    squaresCopy[square] = nextValue
+    setSquares(squaresCopy)
+  }
+
+  function restart() {
+    setSquares(Array(9).fill(null))
+    setLogs([])
+  }
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board
+          restart={restart}
+          selectSquare={selectSquare}
+          squares={squares}
+        />
+      </div>
+      <div className="game-info">
+        <div className="status">{status}</div>
+        <div className="log">
+          logs:
+          {console.log({logs})}
+          {logs.map((log, key) => (
+            <div key={log.toString()}>
+              {key + 1} {key === 0 ? 'Go to game start' : `Go to move #${key}`}{' '}
+              {log}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
