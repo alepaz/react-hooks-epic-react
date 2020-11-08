@@ -2,17 +2,17 @@
 // http://localhost:3000/isolated/exercise/04-classes.js
 
 import React from 'react'
-
-// If you'd rather practice refactoring a class component to a function
-// component with hooks, then go ahead and do this exercise.
-
-// 🦉 You've learned all the hooks you need to know to refactor this Board
-// component to hooks. So, let's make it happen!
+import {useLocalStorageState} from '../utils'
 
 function Board() {
+  const [squares, setSquares] = useLocalStorageState(
+    'tic-tac-toe:squares',
+    Array(9).fill(null),
+  )
 
-  const [squares, setSquares] = React.useState(() => JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null))
-
+  React.useEffect(() => {
+    setSquares(squares)
+  }, [squares])
 
   function selectSquare(square) {
     const nextValue = calculateNextValue(squares)
@@ -23,6 +23,7 @@ function Board() {
     squaresCopy[square] = nextValue
     setSquares(squaresCopy)
   }
+
   const renderSquare = i => (
     <button className="square" onClick={() => selectSquare(i)}>
       {squares[i]}
@@ -31,47 +32,35 @@ function Board() {
 
   const restart = () => {
     setSquares(Array(9).fill(null))
-    updateLocalStorage()
   }
 
-  React.useEffect(()=>{
-    updateLocalStorage()
-  }, [])
+  const nextValue = calculateNextValue(squares)
+  const winner = calculateWinner(squares)
+  let status = calculateStatus(winner, squares, nextValue)
 
-  React.useEffect(()=>{
-    updateLocalStorage()
-  }, [squares])
-
-  function updateLocalStorage() {
-    window.localStorage.setItem('squares', JSON.stringify(squares))
-  }
-    const nextValue = calculateNextValue(squares)
-    const winner = calculateWinner(squares)
-    let status = calculateStatus(winner, squares, nextValue)
-
-    return (
-      <div>
-        <div className="status">{status}</div>
-        <div className="board-row">
-          {renderSquare(0)}
-          {renderSquare(1)}
-          {renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {renderSquare(3)}
-          {renderSquare(4)}
-          {renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {renderSquare(6)}
-          {renderSquare(7)}
-          {renderSquare(8)}
-        </div>
-        <button className="restart" onClick={restart}>
-          restart
-        </button>
+  return (
+    <div>
+      <div className="status">{status}</div>
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
       </div>
-    )
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+      <button className="restart" onClick={restart}>
+        restart
+      </button>
+    </div>
+  )
 }
 
 function Game() {
