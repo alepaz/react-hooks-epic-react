@@ -4,10 +4,10 @@
 import React from 'react'
 import {useLocalStorageState} from '../utils'
 
-function Board({squares, selectSquare, restart}) {
+function Board({onClick, squares}) {
   function renderSquare(i) {
     return (
-      <button className="square" onClick={() => selectSquare(i)}>
+      <button className="square" onClick={() => onClick(i)}>
         {squares[i]}
       </button>
     )
@@ -30,88 +30,68 @@ function Board({squares, selectSquare, restart}) {
         {renderSquare(7)}
         {renderSquare(8)}
       </div>
-      <button className="restart" onClick={restart}>
-        restart
-      </button>
     </div>
   )
 }
 
 function Game() {
-  const [squares, setSquares] = useLocalStorageState(
-    'squares',
-    Array(9).fill(null),
+  const [currentStep, setCurrentStep] = useLocalStorageState(
+    'tic-tac-toe:step',
+    0,
   )
-  const [logs, setLogs] = useLocalStorageState('logs', [])
+  const [history, setHistory] = useLocalStorageState('tic-tac-toe:history', [
+    Array(9).fill(null),
+  ])
 
-  React.useEffect(() => {
-    window.localStorage.setItem('squares', JSON.stringify(squares))
-    if (!logs.some(x => x?.toString() === squares?.toString())) {
-      const lengthSquares = squares.filter(x => x !== null).length
-      const logsCopy = [
-        ...logs.filter(
-          log => log.filter(x => x !== null).length < lengthSquares,
-        ),
-        squares,
-      ]
-      setLogs(logsCopy)
-    }
-  }, [squares])
-
-  React.useEffect(() => {
-    window.localStorage.setItem('logs', JSON.stringify(logs))
-  }, [logs])
-
-  const nextValue = calculateNextValue(squares)
-  const winner = calculateWinner(squares)
-  const status = calculateStatus(winner, squares, nextValue)
+  const currentSquares = history[currentStep]
+  const nextValue = calculateNextValue(currentSquares)
+  const winner = calculateWinner(currentSquares)
+  const status = calculateStatus(winner, currentSquares, nextValue)
 
   function selectSquare(square) {
-    if (squares[square] !== null) return
-    if (winner !== null) return
+    if (winner || currentSquares[square]) return
 
-    const squaresCopy = [...squares]
+    const newHistory = history.slice(0, currentStep + 1)
+
+    const squaresCopy = [...currentSquares]
     squaresCopy[square] = nextValue
-    setSquares(squaresCopy)
+
+    setHistory([...newHistory, squaresCopy])
+    setCurrentStep(newHistory.length)
   }
 
   function restart() {
-    setSquares(Array(9).fill(null))
-    setLogs([])
+    setHistory([Array(9).fill(null)])
+    setCurrentStep(0)
   }
 
-  function goHistory(history) {
-    setSquares(history)
-  }
+  const moves = history.map((stepSquares, step) => {
+    const desc = step === 0 ? 'Go to game start' : `Go to move  #${step}`
+    const isCurrentStep = step === currentStep
+    return (
+      <li key={step}>
+        <button disabled={isCurrentStep} onClick={() => setCurrentStep(step)}>
+          {desc} {isCurrentStep ? 'current' : null}
+        </button>
+      </li>
+    )
+  })
+
+  // function goHistory(history) {
+  //   setSquares(history)
+  // }
 
   return (
     <div className="game">
       <div className="game-board">
-        <Board
-          restart={restart}
-          selectSquare={selectSquare}
-          squares={squares}
-        />
+        <Board onClick={selectSquare} squares={currentSquares} />
+        <button className="restart" onClick={restart}>
+          restart
+        </button>
       </div>
       <div className="game-info">
-        <div className="status">{status}</div>
-        <div className="log">
-          logs:
-          {console.log({logs})}
-          {logs.map((log, key) => (
-            <div key={log.toString()}>
-              {key + 1}
-              {'. '}
-              <button
-                onClick={() => goHistory(log)}
-                disabled={squares?.toString() === log?.toString()}
-              >
-                {key === 0 ? 'Go to game start' : `Go to move #${key}`}
-                {squares?.toString() === log?.toString() ? ' (current)' : null}
-              </button>
-            </div>
-          ))}
-        </div>
+        <div>{status}</div>
+        <ol>{moves}</ol>
       </div>
     </div>
   )
