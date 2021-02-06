@@ -16,7 +16,7 @@ function PokemonInfo({pokemonName}) {
     if (!pokemonName) {
       return
     }
-
+    setPokemon(null);
     fetchPokemon(pokemonName).then(pokemonData => {
       setPokemon(pokemonData)
     })
@@ -25,9 +25,9 @@ function PokemonInfo({pokemonName}) {
   if (!pokemonName) {
     return 'Submit a pokemon'
   } else if (!pokemon) {
-    ;<PokemonInfoFallback name={pokemonName} />
+    return <PokemonInfoFallback name={pokemonName} />
   } else {
-    ;<PokemonDataView pokemon={pokemon} />
+    return <PokemonDataView pokemon={pokemon} />
   }
 }
 
