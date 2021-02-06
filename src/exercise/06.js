@@ -11,23 +11,24 @@ import {
 
 function PokemonInfo({pokemonName}) {
   const [pokemon, setPokemon] = useState(null)
+
   useEffect(() => {
-    if (pokemonName !== '') {
-      fetchPokemon(pokemonName).then(pokemonData => {
-        setPokemon(pokemonData)
-      })
+    if (!pokemonName) {
+      return
     }
+
+    fetchPokemon(pokemonName).then(pokemonData => {
+      setPokemon(pokemonData)
+    })
   }, [pokemonName])
 
-  return !pokemonName ? (
-    'Submit a pokemon'
-  ) : pokemonName && pokemon === null ? (
-    <PokemonInfoFallback name={pokemonName} />
-  ) : pokemon != null ? (
-    <PokemonDataView pokemon={pokemon} />
-  ) : (
-    ''
-  )
+  if (!pokemonName) {
+    return 'Submit a pokemon'
+  } else if (!pokemon) {
+    ;<PokemonInfoFallback name={pokemonName} />
+  } else {
+    ;<PokemonDataView pokemon={pokemon} />
+  }
 }
 
 function App() {
