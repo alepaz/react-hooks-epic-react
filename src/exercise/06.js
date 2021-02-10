@@ -45,7 +45,8 @@ function PokemonInfo({pokemonName}) {
   } else if (status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />
   } else if (status === 'rejected') {
-    throw 'Something went wrong'
+    // This will be handled by our error boundary
+    throw error
   } else if (status === 'resolved') {
     return <PokemonDataView pokemon={pokemon} />
   }
@@ -72,18 +73,21 @@ function App() {
 }
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {hasError: false}
-  }
+  state = {error: null}
 
   static getDerivedStateFromError(error) {
-    return {hasError: true}
+    return {error}
   }
 
   render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>
+    const {error} = this.state
+    if (error) {
+      return (
+        <div>
+          There was an error:{' '}
+          <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+        </div>
+      )
     }
 
     return this.props.children
