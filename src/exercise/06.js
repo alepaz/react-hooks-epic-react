@@ -64,7 +64,7 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary FallbackComponent={ErrorFallback} pokemonName={pokemonName}>
+        <ErrorBoundary FallbackComponent={ErrorFallback} key={pokemonName}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
@@ -82,16 +82,10 @@ function ErrorFallback({error}) {
 }
 
 class ErrorBoundary extends React.Component {
-  state = {error: null, pokemonName: this.props.pokemonName}
+  state = {error: null}
 
   static getDerivedStateFromError(error) {
     return {error}
-  }
-
-  componentDidUpdate() {
-    if (this.props.pokemonName !== this.state.pokemonName) {
-      this.setState({error: null, pokemonName: this.props.pokemonName})
-    }
   }
 
   render() {
