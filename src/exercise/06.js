@@ -12,7 +12,7 @@ import {
 
 function PokemonInfo({pokemonName}) {
   const [state, setState] = useState({
-    status: 'idle',
+    status: pokemonName ? 'pending' : 'idle',
     pokemon: null,
     error: null,
   })
@@ -70,6 +70,7 @@ function App() {
           onReset={() => {
             setPokemonName('')
           }}
+          resetKeys={[pokemonName]}
         >
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
@@ -82,7 +83,7 @@ function ErrorFallback({error, resetErrorBoundary}) {
   return (
     <div>
       There was an error:{' '}
-      <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      <pre style={{whiteSpace: 'normal'}}>{error}</pre>
       <button onClick={resetErrorBoundary}>Try again</button>
     </div>
   )
